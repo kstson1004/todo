@@ -43,7 +43,7 @@ body{margin:0;background:var(--bg);color:var(--text);
 /* 달력 */
 .head{position:relative}
 .date{cursor:pointer}
-.cal{position:absolute;top:44px;right:0;z-index:10;width:300px;max-width:calc(100vw - 32px);
+.cal{position:absolute;top:calc(100% + 6px);right:0;z-index:10;width:300px;max-width:calc(100vw - 32px);
   background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;
   box-shadow:0 8px 28px rgba(0,0,0,.14)}
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -120,6 +120,29 @@ li input[type=checkbox]{width:19px;height:19px;accent-color:var(--accent);cursor
 .note-box textarea:focus{border-color:var(--accent)}
 .note-box .note-hint{font-size:11px;color:var(--muted);margin-top:3px}
 .done .note-box textarea{color:var(--done)}
+.date,.date small,.nav button{white-space:nowrap}
+.icon.note .ico{display:none}
+
+/* 모바일 */
+@media (max-width:560px){
+  .wrap{padding-top:18px}
+  .head{flex-wrap:wrap;row-gap:10px}
+  .date{flex:1 1 100%;font-size:21px}
+  .nav{flex:1 1 100%;justify-content:flex-end}
+  .nav button{height:34px;min-width:38px;font-size:14px}
+  .cal{left:0;right:auto;width:100%;max-width:none}
+  li{gap:6px;padding:9px 4px 9px 10px}
+  li input[type=checkbox]{margin-right:4px}
+  .icon{width:30px;height:30px}
+  .icon.note{width:30px;padding:0;justify-content:center}
+  .icon.note .arr,.icon.note .lbl{display:none}
+  .icon.note .ico{display:inline;font-size:15px;opacity:.35;filter:grayscale(1)}
+  .icon.note.has .ico,.icon.note.open .ico{opacity:1;filter:none}
+  .note-box{padding:2px 4px 2px 0}
+  .opts{gap:6px}
+  .chip{padding:4px 9px}
+  .filebar.alert{flex-wrap:wrap}
+}
 .done .txt-main{text-decoration:line-through;color:var(--done)}
 .empty{color:var(--muted);font-size:14px;text-align:center;padding:22px 0;border:1px dashed var(--line);border-radius:10px;margin-bottom:6px}
 .done-wrap{margin-top:22px}
@@ -493,7 +516,8 @@ function makeLi(item){
   }
   const nb = document.createElement('button');
   nb.className = 'icon note' + (hasNote ? ' has' : '');
-  nb.textContent = (isOpen ? '▾' : '▸') + ' 설명';
+  nb.innerHTML = `<span class="ico">📝</span><span class="arr">${isOpen ? '▾' : '▸'}</span><span class="lbl">설명</span>`;
+  if (isOpen) nb.classList.add('open');
   nb.title = isOpen ? '설명 접기' : '설명 펼치기';
   nb.onclick = () => toggleNote(key);
 
