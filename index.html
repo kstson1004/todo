@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>나의 할일</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2f6fed">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAFAklEQVR4XrVXW2xUVRRd+9zHPDrTUkCCYENMJCQ8FENIjPJhYkA+jWTgw/ijFEvVVDQGIv6QGOOPSnlbQmKUHylGP31GP4ySiIE2iqBiTCSEFCilM53HvfecbfYZbhnKtGXqsJKTmblz79lrr/24ZxNqkMux099POr60aju3lQI4wHWYoEC1994JlL+QPTNiBnrbR+L7J9oY3zT+Y9nWCx1+sr2Todcx6w6wceVhBjdEgEBsjZKKQOoikfo2DIcP/7Z30flaEnbT+MKDPUOblNNy0PHT7SYqg00EcHWfGYMIpFwoNwkdFgumMvbK4L55R2KbFH9Z2TOUI7/tGEdlGBOGxCL9TYVmBHGvyp8ZbEh5ruNnEZWvbh7cUyVBANND264uAHu/E1HG6MAQkRhvPpgNlAsiFRHMslPvt51XADFr6nKTrVkTVfRdM27zgRSb0DiJrK+N7hHbShQgwnoTVpiUaijRZgKCUjooMjHWrtpy0lOrtlxrZeA+NgGBhVDz4CjgNpeICRwSE88veIvuUXmUPICbGnO6oePIGGOswuO/ayG1odjxlPL+b53dCjEeaQk3sOHRBFY/4KE0GQkXbJtMsyBGxZ0gYrz3XBZrV/qWzOZ9o/jpXIiWBMFMaCtNi7moLmu0xHjrmYw1XgoYrgMs7XBRCauqTETTCCgFDBcYO55OI/dYwhpM+YSzFyJ8dqKC1tTt3gumJBBnsHzWYx9DvLyaZ3StT2HLkykEEZDwgH+vaHTuz2NkzNh76mXbpATEoGSwNkCxwjaW9bqEbHxllLFpTQI7NqQRasB3geG8wQsH8hi6bpCuE/sYdQmIITH6+HIfx7e3obczazetRLBS13o+nGese9jH289mLFmpfXl266EC/riokU2RvT4Z6laBJKrvEN7cmEbHXAdLFjpoS2etR0FY9VBISp2vXuxh9/OZ8QoQmbcdKeDnP0PMzpJVbirUVUCSNdCMsxeqT5cC4JElHj7ozloPxSMJz+J7HRzoyliJY+/f+LiAL08Fd2R80iQUBRIuYcdHBZw4FyLlw2Z1TELiPDuj0PdiFnOyyiad5wDvfFrEJz9UMLd1es+nzAGRUZKrHMLKLiQkq2MSfd1Z7O/K2vDEITn8VQmHvihhzh3IXotJq0A6lhgVaWtJhBGwZqmHlfe71Yz3gOM/Vqz3szMEM0XC1cOUfUA2EwO1JDyphrC6RPZvBgLsPFqw2S6ha/QAN20nrEdClJF18q/QZnzCI1sVM3mtuSYkql+MNxGTEK9f7ivgtadS8FzCu58X7X8JHw1LX0USbiplG+e0kbOGbDNi7Dw6Zh+X8hMlGo17FWw8p6jVwKwPRwG6SMqTk8OURCQxpQ/MaiG7pFImvl6nhRzGSA4hNBS2XrqssGuXYdDXyksS8/TbSZwlKWXNJOYMYxwvLa+3787sWh5UD6Wgg1FltKyUr+zR+W6BZTZwSQd5o4zbazthLgc10Nv+D3S5W/kZBeUolpHIEhEfm7BEWuYIROQmZzlal189vbf1zI3B5OZotuKloU4n0dLruOmUiYrV0azhyp6I6mhGbhomHItYl18f6J27e3w0i2+PL6zoubzEdVLdzPoJZr0ADNeK0OjEIB3Jzl2kCeoSKff7KCoc/HXP/MFc7pjT37/Rvulu2bZ2as0dY+fv05hH5ZJbjK4RkGo4M9JukrXDWl1PX/6lj0LZYOJ4/h+dCZWlO3PSZwAAAABJRU5ErkJggg==">
+<link rel="icon" type="image/png" sizes="48x48" href="data:image/png;base64,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">
+<link rel="icon" type="image/png" sizes="192x192" href="data:image/png;base64,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">
+<style>
+:root{
+  --bg:#f5f4f0; --card:#ffffff; --text:#1f2328; --muted:#8a8f98; --line:#e7e5df;
+  --accent:#2f6fed; --accent-bg:#eaf0ff; --imp:#e8590c; --imp-bg:#fff2e9; --done:#a3a7ae;
+  --danger:#d9363e;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#15171b; --card:#1f2228; --text:#e8e9eb; --muted:#8b919b; --line:#2f333b;
+    --accent:#6b97ff; --accent-bg:#22304d; --imp:#ff8c42; --imp-bg:#3a2618; --done:#6b7079;
+    --danger:#ff6b6b;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  font-size:15px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding:28px 16px 60px}
+
+/* 헤더 */
+.head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.date{font-size:24px;font-weight:700;letter-spacing:-0.3px}
+.date small{font-size:13px;font-weight:600;color:var(--accent);background:var(--accent-bg);
+  padding:2px 8px;border-radius:99px;margin-left:8px;vertical-align:middle}
+.nav{display:flex;gap:4px}
+.nav button{border:1px solid var(--line);background:var(--card);color:var(--text);
+  border-radius:8px;height:32px;min-width:32px;padding:0 10px;cursor:pointer;font-size:13px}
+.nav button:hover{border-color:var(--accent)}
+
+/* 달력 */
+.head{position:relative}
+.date{cursor:pointer}
+.cal{position:absolute;top:44px;right:0;z-index:10;width:300px;max-width:calc(100vw - 32px);
+  background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;
+  box-shadow:0 8px 28px rgba(0,0,0,.14)}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-head b{font-size:15px}
+.cal-head button{border:none;background:transparent;color:var(--text);cursor:pointer;width:30px;height:30px;
+  border-radius:6px;font-size:13px}
+.cal-head button:hover{background:var(--bg)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.cal-wd{font-size:11px;color:var(--muted);padding:4px 0}
+.cal-wd.sun,.cal-day.off{color:var(--danger)}
+.cal-day{position:relative;height:36px;border:none;background:transparent;color:var(--text);
+  border-radius:8px;cursor:pointer;font-size:13px;padding:0}
+.cal-day:hover{background:var(--bg)}
+.cal-day.today{box-shadow:inset 0 0 0 1.5px var(--accent);font-weight:700}
+.cal-day.sel{background:var(--accent);color:#fff;font-weight:700}
+.cal-day i{position:absolute;left:50%;bottom:4px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%}
+.cal-day i.todo{background:var(--imp)}
+.cal-day i.done{background:var(--done)}
+.cal-day.sel i.todo,.cal-day.sel i.done{background:#fff}
+.cal-legend{display:flex;gap:12px;justify-content:center;font-size:11px;color:var(--muted);margin-top:8px}
+.cal-legend span::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.cal-legend .l-todo::before{background:var(--imp)}
+.cal-legend .l-done::before{background:var(--done)}
+.progress{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin:10px 0 4px}
+.progress>div{height:100%;background:var(--accent);transition:width .3s}
+.stat{font-size:12px;color:var(--muted);margin-bottom:18px}
+
+/* 입력 */
+.add{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:20px}
+.add-row{display:flex;gap:8px}
+.add input[type=text]{flex:1;min-width:0;border:none;outline:none;background:transparent;color:var(--text);
+  font-size:15px;padding:6px 4px}
+.btn{border:none;border-radius:8px;padding:0 14px;height:36px;cursor:pointer;font-size:14px;font-weight:600}
+.btn.primary{background:var(--accent);color:#fff}
+.opts{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.chip{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:99px;
+  padding:4px 11px;font-size:13px;cursor:pointer;user-select:none}
+.chip.on{border-color:var(--accent);background:var(--accent-bg);color:var(--accent);font-weight:600}
+.chip.imp.on{border-color:var(--imp);background:var(--imp-bg);color:var(--imp)}
+.sep{width:1px;height:18px;background:var(--line)}
+.days{display:flex;gap:4px;width:100%}
+.days .chip{padding:4px 0;width:36px;text-align:center}
+.hidden{display:none!important}
+
+/* 목록 */
+.sec-title{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin:4px 2px 8px;
+  display:flex;align-items:center;gap:6px;cursor:default}
+.sec-title.toggle{cursor:pointer}
+ul{list-style:none;margin:0;padding:0}
+li{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);
+  border-radius:10px;padding:10px 10px 10px 12px;margin-bottom:6px}
+li.important{border-left:3px solid var(--imp)}
+li input[type=checkbox]{width:19px;height:19px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin:0}
+.txt{flex:1;min-width:0;word-break:break-word}
+.txt input{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--accent);
+  border-radius:6px;padding:2px 6px;outline:none}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:2px}
+.tag{font-size:11px;padding:1px 7px;border-radius:99px;background:var(--bg);color:var(--muted)}
+.tag.carry{background:var(--imp-bg);color:var(--imp);font-weight:600}
+.icon{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:16px;
+  width:28px;height:28px;border-radius:6px;flex-shrink:0;opacity:.55}
+.icon:hover{opacity:1;background:var(--bg)}
+.icon.star.on{color:var(--imp);opacity:1}
+.icon.del:hover{color:var(--danger)}
+.done li{opacity:.75}
+.icon.note{font-size:13px;width:auto;padding:0 6px;display:flex;align-items:center;gap:3px}
+.icon.note.has{color:var(--accent);opacity:1}
+.note-preview{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;cursor:pointer}
+.note-box{flex-basis:100%;padding:0 4px 2px 29px}
+.note-box textarea{width:100%;min-height:64px;resize:none;overflow:hidden;font:inherit;font-size:14px;
+  line-height:1.55;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;outline:none}
+.note-box textarea:focus{border-color:var(--accent)}
+.note-box .note-hint{font-size:11px;color:var(--muted);margin-top:3px}
+.done .note-box textarea{color:var(--done)}
+.done .txt-main{text-decoration:line-through;color:var(--done)}
+.empty{color:var(--muted);font-size:14px;text-align:center;padding:22px 0;border:1px dashed var(--line);border-radius:10px;margin-bottom:6px}
+.done-wrap{margin-top:22px}
+
+.dayinfo{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:2px}
+.dayinfo .off{color:var(--danger);font-weight:600}
+.dayinfo button{border:none;background:transparent;color:var(--muted);text-decoration:underline;
+  font-size:12px;cursor:pointer;padding:0}
+
+/* 저장 파일 상태 */
+.filebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);
+  margin:-8px 0 16px}
+.filebar.alert{background:var(--imp-bg);color:var(--imp);border:1px solid var(--imp);border-radius:10px;
+  padding:10px 12px;font-size:13px;font-weight:600;margin:0 0 16px}
+.filebar button{border:1px solid currentColor;background:transparent;color:inherit;border-radius:7px;
+  padding:3px 10px;font-size:12px;cursor:pointer;font-weight:600}
+.filebar.alert button{background:var(--imp);border-color:var(--imp);color:#fff}
+.filebar .link{border:none;padding:0;text-decoration:underline;font-weight:400}
+.filebar.alert > span{flex:1 1 220px}
+.filebar.alert button.link{background:transparent;color:var(--imp);border:1px solid var(--imp);
+  padding:3px 10px;text-decoration:none;font-weight:600}
+/* 설정 창 */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal-box{background:var(--card);color:var(--text);border-radius:14px;padding:20px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.modal-box h3{margin:0 0 6px;font-size:17px}
+.modal-desc{margin:0 0 14px;font-size:13px;color:var(--muted)}
+.modal-box label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:10px}
+.modal-box input{display:block;width:100%;margin-top:4px;padding:8px 10px;font-size:14px;border:1px solid var(--line);
+  border-radius:8px;background:var(--bg);color:var(--text);outline:none}
+.modal-box input:focus{border-color:var(--accent)}
+.modal-msg{font-size:12px;color:var(--danger);min-height:18px;margin-bottom:6px}
+.modal-btns{display:flex;gap:8px;align-items:center}
+.modal-btns .btn{background:var(--bg);color:var(--text)}
+.modal-btns .btn.primary{background:var(--accent);color:#fff}
+.link-danger{border:none;background:transparent;color:var(--danger);font-size:12px;cursor:pointer;text-decoration:underline;padding:0}
+.modal.hidden{display:none}
+.hint{text-align:center;color:var(--muted);font-size:12px;margin-top:36px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="date" id="dateLabel" title="달력 열기"></div>
+    <div class="nav">
+      <button id="calBtn" title="달력">📅</button>
+      <button id="settingsBtn" title="GitHub 연결 설정">⚙</button>
+      <button id="prev" title="전날">◀</button>
+      <button id="goToday">오늘</button>
+      <button id="next" title="다음날">▶</button>
+    </div>
+    <div class="cal hidden" id="cal"></div>
+  </div>
+  <div class="progress"><div id="bar"></div></div>
+  <div class="dayinfo" id="dayInfo"></div>
+  <div class="stat" id="stat"></div>
+  <div class="filebar" id="fileBar"></div>
+
+  <div class="add">
+    <div class="add-row">
+      <input type="text" id="newText" placeholder="할일을 입력하고 Enter" autocomplete="off">
+      <button class="btn primary" id="addBtn">추가</button>
+    </div>
+    <div class="opts">
+      <span class="chip imp" id="impChip">★ 중요</span>
+      <span class="sep"></span>
+      <span class="chip on" data-rep="none">반복 없음</span>
+      <span class="chip" data-rep="daily">매일(근무일)</span>
+      <span class="chip" data-rep="weekly">요일 지정</span>
+      <div class="days hidden" id="days"></div>
+    </div>
+  </div>
+
+  <div class="sec-title" id="todoTitle">할일</div>
+  <ul id="todoList"></ul>
+
+  <div class="done-wrap">
+    <div class="sec-title toggle" id="doneTitle"></div>
+    <ul id="doneList" class="done"></ul>
+  </div>
+
+  <div class="hint">항목을 더블클릭하면 수정 · 미완료 항목은 다음날로 자동 이월 · 매일 반복은 주말·공휴일 제외</div>
+</div>
+
+<div class="modal hidden" id="settings">
+  <div class="modal-box">
+    <h3>GitHub 연결 설정</h3>
+    <p class="modal-desc">할일을 GitHub 비공개 저장소에 저장해서 PC·폰 어디서나 같은 내용을 봅니다. 기기마다 한 번씩 입력하면 돼요.</p>
+    <label>GitHub 사용자 이름<input id="sOwner" placeholder="예: kstson1004" autocomplete="off"></label>
+    <label>데이터 저장소 이름<input id="sRepo" placeholder="todo-data" autocomplete="off"></label>
+    <label>토큰 (Fine-grained token)<input id="sToken" type="password" placeholder="github_pat_..." autocomplete="off"></label>
+    <div class="modal-msg" id="sMsg"></div>
+    <div class="modal-btns">
+      <button class="link-danger hidden" id="sDisconnect">연결 해제</button>
+      <span style="flex:1"></span>
+      <button class="btn" id="sCancel">취소</button>
+      <button class="btn primary" id="sSave">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY = 'my-todo.v1';
+const WD = ['일','월','화','수','목','금','토'];
+
+/* ---------- 날짜 유틸 ---------- */
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (s,n) => { const d = parse(s); d.setDate(d.getDate()+n); return ymd(d); };
+const diffDays = (a,b) => Math.round((parse(b) - parse(a)) / 86400000);
+const todayStr = () => ymd(new Date());
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+/* ---------- 저장 ---------- */
+function load(){
+  try{
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && Array.isArray(s.tasks) && Array.isArray(s.repeats)) return s;
+  }catch(e){}
+  return { tasks:[], repeats:[] };
+}
+function save(){
+  state.updatedAt = Date.now();
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+  scheduleWrite();
+}
+let state = load();
+let today = todayStr();
+let view = today;
+let showDone = true;
+
+/* tasks:   {id, text, important, date, done, doneAt, origDate?, fromRepeat?}
+   repeats: {id, text, important, type:'daily'|'weekly', days:[0-6], start, done:[dates], carried:[dates]} */
+
+/* ---------- 근무일 (주말·공휴일 제외) ---------- */
+const HOLIDAYS = {
+  '2026-01-01':'신정','2026-02-16':'설날 연휴','2026-02-17':'설날','2026-02-18':'설날 연휴',
+  '2026-03-01':'삼일절','2026-03-02':'대체공휴일(삼일절)','2026-05-01':'노동절','2026-05-05':'어린이날',
+  '2026-05-24':'부처님오신날','2026-05-25':'대체공휴일(부처님오신날)','2026-06-03':'지방선거',
+  '2026-06-06':'현충일','2026-07-17':'제헌절','2026-08-15':'광복절','2026-08-17':'대체공휴일(광복절)',
+  '2026-09-24':'추석 연휴','2026-09-25':'추석','2026-09-26':'추석 연휴','2026-10-03':'개천절',
+  '2026-10-05':'대체공휴일(개천절)','2026-10-09':'한글날','2026-12-25':'크리스마스',
+  '2027-01-01':'신정','2027-02-06':'설날 연휴','2027-02-07':'설날','2027-02-08':'설날 연휴',
+  '2027-02-09':'대체공휴일(설날)','2027-03-01':'삼일절','2027-05-01':'노동절','2027-05-03':'대체공휴일(노동절)',
+  '2027-05-05':'어린이날','2027-05-13':'부처님오신날','2027-06-06':'현충일','2027-07-17':'제헌절',
+  '2027-07-19':'대체공휴일(제헌절)','2027-08-15':'광복절','2027-08-16':'대체공휴일(광복절)',
+  '2027-09-14':'추석 연휴','2027-09-15':'추석','2027-09-16':'추석 연휴','2027-10-03':'개천절',
+  '2027-10-04':'대체공휴일(개천절)','2027-10-09':'한글날','2027-10-11':'대체공휴일(한글날)',
+  '2027-12-25':'크리스마스','2027-12-27':'대체공휴일(크리스마스)'
+};
+function isWorkday(date){
+  const ov = (state.dayOverrides || {})[date];
+  if (ov === 'off') return false;
+  if (ov === 'work') return true;
+  const w = parse(date).getDay();
+  return w !== 0 && w !== 6 && !HOLIDAYS[date];
+}
+function toggleWorkday(date){
+  state.dayOverrides = state.dayOverrides || {};
+  const def = (() => { const w = parse(date).getDay(); return w !== 0 && w !== 6 && !HOLIDAYS[date]; })();
+  const now = isWorkday(date);
+  if (now === !def) delete state.dayOverrides[date];      // 기본값으로 되돌림
+  else state.dayOverrides[date] = now ? 'off' : 'work';
+  save(); render();
+}
+
+function occursOn(r, date){
+  if (date < r.start) return false;
+  if (r.type === 'daily') return isWorkday(date);
+  return r.days.includes(parse(date).getDay());
+}
+function repeatLabel(r){
+  if (r.type === 'daily') return '매일(근무일)';
+  const d = [...r.days].sort((a,b)=>((a+6)%7)-((b+6)%7)).map(i=>WD[i]).join('·');
+  return '매주 ' + d;
+}
+
+/* ---------- 중요 항목 이월 ---------- */
+function rollover(){
+  today = todayStr();
+  let changed = false;
+
+  // 1) 일반 할일: 지난 날짜에 미완료면 오늘로 이동 (원래 날짜는 origDate로 보관)
+  state.tasks.forEach(t => {
+    if (!t.done && t.date < today){
+      if (!t.origDate) t.origDate = t.date;
+      t.date = today;
+      changed = true;
+    }
+  });
+
+  // 2) 반복 할일: 지난 반복일(최근 14일) 중 미완료인 날마다 오늘 할일로 1건씩 이월
+  //    (오늘도 반복일이면 오늘 몫 + 이월분이 함께 보임)
+  state.repeats.forEach(r => {
+    r.carried = r.carried || [];
+    for (let i = 14; i >= 1; i--){
+      const d = addDays(today, -i);
+      if (d < r.start || !occursOn(r, d)) continue;
+      if (r.done.includes(d) || r.carried.includes(d)) continue;
+      r.carried.push(d);
+      state.tasks.push({ id:uid(), text:r.text, important:r.important, date:today, done:false,
+                         doneAt:null, origDate:d, fromRepeat:r.id, note:r.note || '' });
+      changed = true;
+    }
+    if (r.carried.length > 60) r.carried = r.carried.slice(-60);
+  });
+
+  if (changed) save();
+}
+
+/* ---------- 입력 ---------- */
+const $ = id => document.getElementById(id);
+let newImp = false, newRep = 'none', newDays = [];
+
+$('impChip').onclick = () => { newImp = !newImp; $('impChip').classList.toggle('on', newImp); };
+document.querySelectorAll('[data-rep]').forEach(ch => ch.onclick = () => {
+  newRep = ch.dataset.rep;
+  document.querySelectorAll('[data-rep]').forEach(c => c.classList.toggle('on', c === ch));
+  $('days').classList.toggle('hidden', newRep !== 'weekly');
+  if (newRep === 'weekly' && newDays.length === 0){ newDays = [parse(view).getDay()]; renderDayChips(); }
+});
+function renderDayChips(){
+  const box = $('days'); box.innerHTML = '';
+  [1,2,3,4,5,6,0].forEach(i => {
+    const c = document.createElement('span');
+    c.className = 'chip' + (newDays.includes(i) ? ' on' : '');
+    c.textContent = WD[i];
+    c.onclick = () => {
+      newDays = newDays.includes(i) ? newDays.filter(x => x !== i) : [...newDays, i];
+      renderDayChips();
+    };
+    box.appendChild(c);
+  });
+}
+
+function addItem(){
+  const text = $('newText').value.trim();
+  if (!text) { $('newText').focus(); return; }
+  if (newRep === 'none'){
+    state.tasks.push({ id:uid(), text, important:newImp, date:view, done:false, doneAt:null });
+  } else {
+    if (newRep === 'weekly' && newDays.length === 0){ alert('반복할 요일을 선택해 주세요.'); return; }
+    state.repeats.push({ id:uid(), text, important:newImp, type:newRep,
+      days: newRep === 'weekly' ? [...newDays] : [], start: view, done:[], carried:[] });
+  }
+  save();
+  $('newText').value = '';
+  $('newText').focus();
+  render();
+}
+$('addBtn').onclick = addItem;
+$('newText').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) addItem(); });
+
+/* ---------- 동작 ---------- */
+function toggleDone(item){
+  if (item.kind === 'task'){
+    const t = state.tasks.find(x => x.id === item.id);
+    t.done = !t.done; t.doneAt = t.done ? Date.now() : null;
+    // 이월된 반복 항목을 완료하면 원래 날짜의 반복 일정에도 완료 표시
+    if (t.fromRepeat){
+      const r = state.repeats.find(x => x.id === t.fromRepeat);
+      if (r){ const i = r.done.indexOf(t.origDate);
+        if (t.done && i < 0) r.done.push(t.origDate); if (!t.done && i >= 0) r.done.splice(i,1); }
+    }
+  } else {
+    const r = state.repeats.find(x => x.id === item.id);
+    const i = r.done.indexOf(view);
+    if (i >= 0) r.done.splice(i,1); else r.done.push(view);
+    // 지난 날짜에서 체크하면 이월된 복사본도 같이 처리
+    const copy = state.tasks.find(t => t.fromRepeat === r.id && t.origDate === view);
+    if (copy){ copy.done = i < 0; copy.doneAt = copy.done ? Date.now() : null; }
+  }
+  save(); render();
+}
+function toggleImp(item){
+  const o = item.kind === 'task' ? state.tasks.find(x => x.id === item.id) : state.repeats.find(x => x.id === item.id);
+  o.important = !o.important;
+  save(); rollover(); render();
+}
+function remove(item){
+  if (item.kind === 'task'){
+    state.tasks = state.tasks.filter(x => x.id !== item.id);
+  } else {
+    if (!confirm(`'${item.text}' 반복 일정을 모든 날짜에서 삭제할까요?`)) return;
+    state.repeats = state.repeats.filter(x => x.id !== item.id);
+  }
+  save(); render();
+}
+function editText(item, el){
+  const input = document.createElement('input');
+  input.value = item.text;
+  el.innerHTML = ''; el.appendChild(input); input.focus(); input.select();
+  let finished = false;
+  const finish = ok => {
+    if (finished) return; finished = true;
+    const v = input.value.trim();
+    if (ok && v){
+      const o = item.kind === 'task' ? state.tasks.find(x => x.id === item.id) : state.repeats.find(x => x.id === item.id);
+      o.text = v; save();
+    }
+    render();
+  };
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.isComposing) finish(true);
+    if (e.key === 'Escape') finish(false);
+  });
+  input.addEventListener('blur', () => finish(true));
+}
+
+/* ---------- 렌더링 ---------- */
+function itemsFor(date){
+  const list = [];
+  state.tasks.filter(t => t.date === date).forEach(t => list.push({
+    kind:'task', id:t.id, text:t.text, important:t.important, done:t.done,
+    doneAt:t.doneAt || 0, origDate:t.origDate, rep:null, order:0, note:t.note || ''
+  }));
+  state.repeats.filter(r => occursOn(r, date)).forEach(r => list.push({
+    kind:'repeat', id:r.id, text:r.text, important:r.important, done:r.done.includes(date),
+    doneAt:0, rep:repeatLabel(r), order:1, note:r.note || ''
+  }));
+  return list;
+}
+
+const openNotes = new Set();   // 펼쳐진 설명 (화면에서만 기억)
+let focusNote = null;
+function toggleNote(key){
+  if (openNotes.has(key)) openNotes.delete(key);
+  else { openNotes.add(key); focusNote = key; }
+  render();
+}
+function setNote(item, text){
+  const o = item.kind === 'task' ? state.tasks.find(x => x.id === item.id) : state.repeats.find(x => x.id === item.id);
+  if (!o) return;
+  o.note = text;
+  item.note = text;
+  save();          // 화면은 다시 그리지 않음 (입력 중 커서 유지)
+}
+
+function makeLi(item){
+  const li = document.createElement('li');
+  if (item.important && !item.done) li.classList.add('important');
+
+  const cb = document.createElement('input');
+  cb.type = 'checkbox'; cb.checked = item.done;
+  cb.onchange = () => toggleDone(item);
+
+  const txt = document.createElement('div'); txt.className = 'txt';
+  const main = document.createElement('div'); main.className = 'txt-main'; main.textContent = item.text;
+  txt.appendChild(main);
+  const tags = document.createElement('div'); tags.className = 'tags';
+  if (item.rep){ const t = document.createElement('span'); t.className='tag'; t.textContent = '↻ ' + item.rep; tags.appendChild(t); }
+  if (item.origDate){
+    const n = diffDays(item.origDate, view);
+    if (n > 0){ const t = document.createElement('span'); t.className='tag carry';
+      const o = parse(item.origDate);
+      t.textContent = `📅 ${o.getMonth()+1}/${o.getDate()}(${WD[o.getDay()]}) 업무 · ${n}일째 이월`; tags.appendChild(t); }
+  }
+  if (tags.children.length) txt.appendChild(tags);
+  txt.ondblclick = () => editText(item, main);
+
+  // 설명: 접혀 있을 때는 첫 줄 미리보기, 펼치면 입력창
+  const key = item.kind + ':' + item.id;
+  const isOpen = openNotes.has(key);
+  const hasNote = !!item.note.trim();
+  if (hasNote && !isOpen){
+    const pv = document.createElement('div'); pv.className = 'note-preview';
+    pv.textContent = '📝 ' + item.note.trim().split('\n')[0];
+    pv.title = '클릭해서 설명 펼치기';
+    pv.onclick = () => toggleNote(key);
+    txt.appendChild(pv);
+  }
+  const nb = document.createElement('button');
+  nb.className = 'icon note' + (hasNote ? ' has' : '');
+  nb.textContent = (isOpen ? '▾' : '▸') + ' 설명';
+  nb.title = isOpen ? '설명 접기' : '설명 펼치기';
+  nb.onclick = () => toggleNote(key);
+
+  const star = document.createElement('button');
+  star.className = 'icon star' + (item.important ? ' on' : '');
+  star.textContent = item.important ? '★' : '☆';
+  star.title = '중요 표시';
+  star.onclick = () => toggleImp(item);
+
+  const del = document.createElement('button');
+  del.className = 'icon del'; del.textContent = '✕'; del.title = '삭제';
+  del.onclick = () => remove(item);
+
+  li.append(cb, txt, nb, star, del);
+
+  if (isOpen){
+    const box = document.createElement('div'); box.className = 'note-box';
+    const ta = document.createElement('textarea');
+    ta.value = item.note;
+    ta.placeholder = item.kind === 'repeat'
+      ? '반복 일정의 설명은 모든 날짜에 같이 보여요' : '업무 설명, 담당자, 링크, 진행 메모 등을 적어 두세요';
+    const fit = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 2 + 'px'; };
+    ta.oninput = () => { fit(); setNote(item, ta.value); };
+    ta.onblur = () => nb.classList.toggle('has', !!ta.value.trim());
+    ta.onkeydown = e => { if (e.key === 'Escape'){ ta.blur(); toggleNote(key); } };
+    const hint = document.createElement('div'); hint.className = 'note-hint';
+    hint.textContent = '입력하면 자동 저장 · Esc로 접기';
+    box.append(ta, hint);
+    li.appendChild(box);
+    setTimeout(fit, 0);
+    if (focusNote === key){ focusNote = null; setTimeout(() => { ta.focus(); ta.selectionStart = ta.value.length; }, 0); }
+  }
+  return li;
+}
+
+function render(){
+  const d = parse(view);
+  const rel = view === today ? '오늘' : view === addDays(today,1) ? '내일' : view === addDays(today,-1) ? '어제' : '';
+  $('dateLabel').innerHTML = `${d.getMonth()+1}월 ${d.getDate()}일 (${WD[d.getDay()]})` + (rel ? `<small>${rel}</small>` : '');
+
+  const work = isWorkday(view);
+  const ov = (state.dayOverrides || {})[view];
+  const info = $('dayInfo'); info.innerHTML = '';
+  const s = document.createElement('span');
+  s.textContent = work ? (ov === 'work' ? '근무일 (직접 지정)' : '근무일')
+                       : '휴무일' + (ov === 'off' ? ' (직접 지정)' : HOLIDAYS[view] ? ` · ${HOLIDAYS[view]}` : '');
+  s.className = work ? '' : 'off';
+  const b = document.createElement('button');
+  b.textContent = work ? '이 날 휴무로 지정' : '이 날 근무로 지정';
+  b.onclick = () => toggleWorkday(view);
+  info.append(s, b);
+
+  const items = itemsFor(view);
+  const todo = items.filter(i => !i.done)
+    .sort((a,b) => (b.important - a.important) || (a.order - b.order));
+  const done = items.filter(i => i.done)
+    .sort((a,b) => b.doneAt - a.doneAt);
+
+  const tl = $('todoList'); tl.innerHTML = '';
+  if (!todo.length){
+    const e = document.createElement('div'); e.className = 'empty';
+    e.textContent = items.length ? '모두 끝냈어요 🎉' : '등록된 할일이 없어요';
+    tl.appendChild(e);
+  } else todo.forEach(i => tl.appendChild(makeLi(i)));
+
+  $('doneTitle').textContent = `${showDone ? '▾' : '▸'} 완료 ${done.length}`;
+  $('doneTitle').parentElement.classList.toggle('hidden', done.length === 0);
+  const dl = $('doneList'); dl.innerHTML = '';
+  dl.classList.toggle('hidden', !showDone);
+  done.forEach(i => dl.appendChild(makeLi(i)));
+
+  const pct = items.length ? Math.round(done.length / items.length * 100) : 0;
+  $('bar').style.width = pct + '%';
+  $('stat').textContent = items.length ? `${items.length}개 중 ${done.length}개 완료 (${pct}%)` : '';
+  $('todoTitle').textContent = `할일 ${todo.length}`;
+}
+
+$('doneTitle').onclick = () => { showDone = !showDone; render(); };
+$('prev').onclick = () => { view = addDays(view,-1); render(); };
+$('next').onclick = () => { view = addDays(view,1); render(); };
+$('goToday').onclick = () => { view = today; closeCal(); render(); };
+
+/* ---------- 달력 ---------- */
+let calMonth = null; // 'YYYY-MM'
+const calOpen = () => !$('cal').classList.contains('hidden');
+function openCal(){ calMonth = view.slice(0,7); renderCal(); $('cal').classList.remove('hidden'); }
+function closeCal(){ $('cal').classList.add('hidden'); }
+function toggleCal(e){ e.stopPropagation(); calOpen() ? closeCal() : openCal(); }
+$('calBtn').onclick = toggleCal;
+$('dateLabel').onclick = toggleCal;
+document.addEventListener('click', e => { if (calOpen() && !$('cal').contains(e.target)) closeCal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCal(); });
+
+// 그날 남은 할일이 있으면 'todo', 전부 끝났으면 'done'
+function dayStatus(date){
+  const items = itemsFor(date).filter(i => {
+    if (i.kind !== 'repeat' || i.done) return true;
+    const r = state.repeats.find(x => x.id === i.id);
+    return !(r.carried || []).includes(date);   // 이월된 반복은 그날 미완료로 치지 않음
+  });
+  if (!items.length) return '';
+  return items.some(i => !i.done) ? 'todo' : 'done';
+}
+
+function renderCal(){
+  const [y, m] = calMonth.split('-').map(Number);
+  const startDow = new Date(y, m-1, 1).getDay();
+  const days = new Date(y, m, 0).getDate();
+  const cal = $('cal'); cal.innerHTML = '';
+  cal.onclick = e => e.stopPropagation();
+
+  const head = document.createElement('div'); head.className = 'cal-head';
+  const pm = document.createElement('button'); pm.textContent = '◀';
+  const nm = document.createElement('button'); nm.textContent = '▶';
+  const title = document.createElement('b'); title.textContent = `${y}년 ${m}월`;
+  const shift = n => { const d = new Date(y, m-1+n, 1); calMonth = `${d.getFullYear()}-${pad(d.getMonth()+1)}`; renderCal(); };
+  pm.onclick = () => shift(-1); nm.onclick = () => shift(1);
+  head.append(pm, title, nm);
+
+  const grid = document.createElement('div'); grid.className = 'cal-grid';
+  WD.forEach((w, i) => { const c = document.createElement('div');
+    c.className = 'cal-wd' + (i === 0 ? ' sun' : ''); c.textContent = w; grid.appendChild(c); });
+  for (let i = 0; i < startDow; i++) grid.appendChild(document.createElement('div'));
+  for (let dd = 1; dd <= days; dd++){
+    const date = `${y}-${pad(m)}-${pad(dd)}`;
+    const b = document.createElement('button');
+    b.className = 'cal-day' + (isWorkday(date) ? '' : ' off') + (date === today ? ' today' : '') + (date === view ? ' sel' : '');
+    b.textContent = dd;
+    if (HOLIDAYS[date]) b.title = HOLIDAYS[date];
+    const st = dayStatus(date);
+    if (st){ const dot = document.createElement('i'); dot.className = st; b.appendChild(dot); }
+    b.onclick = () => { view = date; closeCal(); render(); };
+    grid.appendChild(b);
+  }
+
+  const legend = document.createElement('div'); legend.className = 'cal-legend';
+  legend.innerHTML = '<span class="l-todo">남은 할일</span><span class="l-done">모두 완료</span>';
+  cal.append(head, grid, legend);
+}
+
+/* ---------- GitHub 비공개 저장소에 저장 (어디서나 같은 할일) ----------
+   설정(사용자 이름·저장소·토큰)은 이 기기 브라우저에만 저장되고,
+   할일 데이터는 GitHub 저장소의 data.json 에 저장됩니다.
+   이 기기에도 사본을 두기 때문에 인터넷이 끊겨도 쓰고, 연결되면 자동으로 올라갑니다. */
+const GH_KEY = 'my-todo.gh';
+const META_KEY = 'my-todo.sync';
+const DATA_PATH = 'data.json';
+let gh = loadJSON(GH_KEY, null);                       // {owner, repo, token}
+let meta = loadJSON(META_KEY, { sha:null, dirty:false, last:0 });
+let pushTimer = null, busy = false, again = false;
+
+function loadJSON(k, def){ try{ const v = JSON.parse(localStorage.getItem(k)); return v || def; }catch(e){ return def; } }
+function saveMeta(){ try{ localStorage.setItem(META_KEY, JSON.stringify(meta)); }catch(e){} }
+function saveLocal(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+const b64enc = s => { const b = new TextEncoder().encode(s); let bin = ''; for (let i = 0; i < b.length; i++) bin += String.fromCharCode(b[i]); return btoa(bin); };
+const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, '')), c => c.charCodeAt(0)));
+
+async function api(method, body){
+  const url = `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}/contents/${DATA_PATH}`;
+  const r = await fetch(url, {
+    method, cache:'no-store',
+    headers:{ 'Accept':'application/vnd.github+json', 'Authorization':'Bearer ' + gh.token,
+              ...(body ? { 'Content-Type':'application/json' } : {}) },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  return r;
+}
+async function fetchRemote(){
+  const r = await api('GET');
+  if (r.status === 404) return { sha:null, data:null };
+  if (r.status === 401 || r.status === 403) throw Object.assign(new Error('토큰 권한 오류'), { auth:true });
+  if (!r.ok) throw new Error('GitHub 응답 ' + r.status);
+  const j = await r.json();
+  const data = JSON.parse(b64dec(j.content));
+  if (!Array.isArray(data.tasks) || !Array.isArray(data.repeats)) throw new Error('data.json 형식 오류');
+  return { sha:j.sha, data };
+}
+
+// 두 기기에서 동시에 고친 경우: 같은 항목은 이 기기 것을 우선, 한쪽에만 있는 항목은 모두 살림
+function merge(remote, local){
+  const byId = (a, b) => { const m = new Map(a.map(x => [x.id, x])); b.forEach(x => m.set(x.id, x)); return [...m.values()]; };
+  const repeats = byId(remote.repeats, local.repeats).map(r => {
+    const o = remote.repeats.find(x => x.id === r.id);
+    if (!o || o === r) return r;
+    return { ...r, done:[...new Set([...(o.done||[]), ...(r.done||[])])], carried:[...new Set([...(o.carried||[]), ...(r.carried||[])])] };
+  });
+  return { tasks:byId(remote.tasks, local.tasks), repeats,
+           dayOverrides:{ ...(remote.dayOverrides||{}), ...(local.dayOverrides||{}) }, updatedAt:Date.now() };
+}
+
+// 불러오기: 다른 기기에서 바뀐 게 있으면 반영
+async function pull(){
+  if (!gh || busy) return;
+  busy = true; setStatus('syncing');
+  try{
+    const { sha, data } = await fetchRemote();
+    if (sha && sha !== meta.sha){
+      state = meta.dirty ? merge(data, state) : data;
+      meta.sha = sha; saveLocal(); saveMeta();
+    }
+    busy = false;
+    rollover(); render(); if (calOpen()) renderCal();
+    if (meta.dirty || !sha) await push(); else done();
+  }catch(e){ busy = false; fail(e); }
+}
+
+// 올리기
+function scheduleWrite(){
+  meta.dirty = true; saveMeta();
+  if (!gh) return;
+  clearTimeout(pushTimer);
+  setStatus('syncing');
+  pushTimer = setTimeout(push, 1200);
+}
+async function push(retry = true){
+  if (!gh) return;
+  if (busy){ again = true; return; }
+  busy = true; setStatus('syncing');
+  try{
+    const body = { message:'할일 업데이트 ' + new Date().toLocaleString('ko-KR'),
+                   content:b64enc(JSON.stringify(state, null, 1)) };
+    if (meta.sha) body.sha = meta.sha;
+    const r = await api('PUT', body);
+    if ((r.status === 409 || r.status === 422) && retry){
+      // 그 사이 다른 기기가 저장함 → 받아서 합친 뒤 다시 올림
+      const { sha, data } = await fetchRemote();
+      if (data){ state = merge(data, state); saveLocal(); render(); }
+      meta.sha = sha; busy = false;
+      return push(false);
+    }
+    if (r.status === 401 || r.status === 403) throw Object.assign(new Error('토큰 권한 오류'), { auth:true });
+    if (!r.ok) throw new Error('GitHub 응답 ' + r.status);
+    const j = await r.json();
+    meta.sha = j.content.sha; meta.dirty = false; saveMeta();
+    busy = false; done();
+    if (again){ again = false; push(); }
+  }catch(e){ busy = false; fail(e); }
+}
+function done(){ meta.last = Date.now(); saveMeta(); setStatus('synced'); }
+function fail(e){ rollover(); render(); setStatus(e.auth ? 'autherr' : 'offline', e.message); }
+
+function setStatus(kind, msg){
+  const bar = $('fileBar'); bar.innerHTML = ''; bar.className = 'filebar';
+  const span = document.createElement('span'); bar.appendChild(span);
+  const btn = (label, fn, cls) => { const b = document.createElement('button'); b.textContent = label;
+    if (cls) b.className = cls; b.onclick = fn; bar.appendChild(b); };
+  if (kind === 'nosetup'){
+    bar.classList.add('alert');
+    span.textContent = '☁ GitHub 저장소를 연결하면 PC·폰 어디서나 같은 할일을 볼 수 있어요 (지금은 이 기기에만 저장 중)';
+    btn('연결 설정', openSettings);
+  } else if (kind === 'syncing'){
+    span.textContent = '☁ 동기화 중…';
+  } else if (kind === 'synced'){
+    const t = new Date(meta.last);
+    span.textContent = `☁ GitHub에 저장됨 · ${pad(t.getHours())}:${pad(t.getMinutes())}`;
+    btn('설정', openSettings, 'link');
+  } else if (kind === 'offline'){
+    bar.classList.add('alert');
+    span.textContent = `⚠ GitHub 연결 안 됨 (${msg || ''}) — 이 기기에 저장해 두고, 연결되면 자동으로 올려요`;
+    btn('다시 시도', pull); btn('설정', openSettings, 'link');
+  } else if (kind === 'autherr'){
+    bar.classList.add('alert');
+    span.textContent = '🔒 토큰이 틀렸거나 만료됐어요. 설정에서 토큰을 다시 넣어 주세요';
+    btn('설정', openSettings);
+  }
+}
+
+/* ---------- 연결 설정 창 ---------- */
+function openSettings(){
+  $('sOwner').value = gh?.owner || 'kstson1004';
+  $('sRepo').value  = gh?.repo  || 'todo-data';
+  $('sToken').value = gh?.token || '';
+  $('sMsg').textContent = '';
+  $('sDisconnect').classList.toggle('hidden', !gh);
+  $('settings').classList.remove('hidden');
+}
+function closeSettings(){ $('settings').classList.add('hidden'); }
+$('settingsBtn').onclick = openSettings;
+$('sCancel').onclick = closeSettings;
+$('settings').addEventListener('click', e => { if (e.target.id === 'settings') closeSettings(); });
+$('sSave').onclick = async () => {
+  const cfg = { owner:$('sOwner').value.trim(), repo:$('sRepo').value.trim(), token:$('sToken').value.trim() };
+  if (!cfg.owner || !cfg.repo || !cfg.token){ $('sMsg').textContent = '세 칸을 모두 입력해 주세요.'; return; }
+  $('sMsg').textContent = '연결 확인 중…';
+  const prev = gh; gh = cfg;
+  try{
+    const { sha, data } = await fetchRemote();
+    try{ localStorage.setItem(GH_KEY, JSON.stringify(gh)); }catch(e){}
+    if (data){
+      // 저장소에 이미 할일이 있으면 합치기
+      state = (state.tasks.length || state.repeats.length) ? merge(data, state) : data;
+      meta.dirty = true;
+    } else meta.dirty = true;
+    meta.sha = sha; saveLocal(); saveMeta();
+    closeSettings(); rollover(); render(); push();
+  }catch(e){
+    gh = prev;
+    $('sMsg').textContent = e.auth ? '토큰이 틀렸거나 이 저장소 권한이 없어요.'
+      : `연결 실패: ${e.message} (사용자 이름·저장소 이름을 확인해 주세요)`;
+  }
+};
+$('sDisconnect').onclick = () => {
+  if (!confirm('이 기기에서 GitHub 연결을 해제할까요? (GitHub의 데이터는 그대로 남아요)')) return;
+  gh = null; meta = { sha:null, dirty:false, last:0 };
+  try{ localStorage.removeItem(GH_KEY); }catch(e){}
+  saveMeta(); closeSettings(); setStatus('nosetup');
+};
+
+/* ---------- 날짜 변경 감지 (켜둔 채로 자정이 지나도 이월) ---------- */
+function checkDay(){
+  const t = todayStr();
+  if (t !== today){
+    const wasToday = view === today;
+    rollover();
+    if (wasToday) view = today;
+    render();
+  }
+}
+setInterval(checkDay, 60000);
+setInterval(() => { if (!document.hidden) pull(); }, 3 * 60000);   // 3분마다 다른 기기 변경 확인
+document.addEventListener('visibilitychange', () => { if (!document.hidden){ checkDay(); pull(); } });
+
+if ('serviceWorker' in navigator && location.protocol === 'https:'){
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+renderDayChips();
+if (gh){ render(); pull(); }
+else { rollover(); render(); setStatus('nosetup'); }
+if (window.matchMedia('(min-width: 700px)').matches) $('newText').focus();
+</script>
+</body>
+</html>
