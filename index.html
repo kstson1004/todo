@@ -122,6 +122,14 @@ li input[type=checkbox]{width:19px;height:19px;accent-color:var(--accent);cursor
 .done .note-box textarea{color:var(--done)}
 .date,.date small,.nav button{white-space:nowrap}
 .icon.note .ico{display:none}
+.icon.move{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.icon.move span{font-size:14px;filter:grayscale(1);opacity:.7;pointer-events:none}
+.icon.move:hover span{filter:none;opacity:1}
+.icon.move input,.datechip input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
+.datechip{position:relative;overflow:hidden;white-space:nowrap}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:#1f2328;color:#fff;
+  padding:9px 16px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:60;white-space:nowrap}
+.toast.show{opacity:.95;transform:translate(-50%,0)}
 
 /* 모바일 */
 @media (max-width:560px){
@@ -133,7 +141,8 @@ li input[type=checkbox]{width:19px;height:19px;accent-color:var(--accent);cursor
   .cal{left:0;right:auto;width:100%;max-width:none}
   li{gap:6px;padding:9px 4px 9px 10px}
   li input[type=checkbox]{margin-right:4px}
-  .icon{width:30px;height:30px}
+  .icon{width:28px;height:30px}
+  li{gap:4px}
   .icon.note{width:30px;padding:0;justify-content:center}
   .icon.note .arr,.icon.note .lbl{display:none}
   .icon.note .ico{display:inline;font-size:15px;opacity:.35;filter:grayscale(1)}
@@ -206,6 +215,7 @@ li input[type=checkbox]{width:19px;height:19px;accent-color:var(--accent);cursor
       <button class="btn primary" id="addBtn">추가</button>
     </div>
     <div class="opts">
+      <label class="chip datechip" id="addDateChip" title="등록할 날짜"><span id="addDateLbl"></span><input type="date" id="addDate"></label>
       <span class="chip imp" id="impChip">★ 중요</span>
       <span class="sep"></span>
       <span class="chip on" data-rep="none">반복 없음</span>
@@ -242,6 +252,8 @@ li input[type=checkbox]{width:19px;height:19px;accent-color:var(--accent);cursor
     </div>
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 const KEY = 'my-todo.v1';
@@ -311,6 +323,7 @@ function toggleWorkday(date){
 
 function occursOn(r, date){
   if (date < r.start) return false;
+  if ((r.skip || []).includes(date)) return false;   // 다른 날로 옮긴 회차
   if (r.type === 'daily') return isWorkday(date);
   return r.days.includes(parse(date).getDay());
 }
@@ -378,16 +391,41 @@ function renderDayChips(){
   });
 }
 
+/* ---------- 등록 날짜 지정 ---------- */
+let addDateVal = null, addDateFor = null;    // 사용자가 고른 날짜 (보고 있는 날짜가 바뀌면 해제)
+const addTarget = () => (addDateVal && addDateFor === view) ? addDateVal : view;
+const fmtDate = d => { const o = parse(d); return `${o.getMonth()+1}/${o.getDate()}(${WD[o.getDay()]})`; };
+function updateAddDate(){
+  const tg = addTarget();
+  $('addDateLbl').textContent = '📅 ' + fmtDate(tg);
+  $('addDate').value = tg;
+  $('addDateChip').classList.toggle('on', tg !== view);
+}
+$('addDate').addEventListener('click', e => { try{ e.target.showPicker(); }catch(_){} });
+$('addDate').addEventListener('change', e => {
+  const v = e.target.value;
+  addDateVal = v && v !== view ? v : null; addDateFor = view;
+  updateAddDate();
+});
+let toastTimer = null;
+function toast(msg){
+  const el = $('toast'); el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
 function addItem(){
   const text = $('newText').value.trim();
   if (!text) { $('newText').focus(); return; }
+  const target = addTarget();
   if (newRep === 'none'){
-    state.tasks.push({ id:uid(), text, important:newImp, date:view, done:false, doneAt:null });
+    state.tasks.push({ id:uid(), text, important:newImp, date:target, done:false, doneAt:null });
   } else {
     if (newRep === 'weekly' && newDays.length === 0){ alert('반복할 요일을 선택해 주세요.'); return; }
     state.repeats.push({ id:uid(), text, important:newImp, type:newRep,
-      days: newRep === 'weekly' ? [...newDays] : [], start: view, done:[], carried:[] });
+      days: newRep === 'weekly' ? [...newDays] : [], start: target, done:[], carried:[] });
   }
+  if (target !== view) toast(`${fmtDate(target)}${newRep === 'none' ? '' : '부터 반복'} 할일로 추가했어요`);
+  addDateVal = null;
   save();
   $('newText').value = '';
   $('newText').focus();
@@ -397,6 +435,22 @@ $('addBtn').onclick = addItem;
 $('newText').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) addItem(); });
 
 /* ---------- 동작 ---------- */
+// 날짜 변경: 일반 할일은 날짜를 옮기고, 반복 일정은 이 날 회차만 다른 날 할일로 옮김
+function moveItem(item, date){
+  if (!date || date === view) return;
+  if (item.kind === 'task'){
+    const t = state.tasks.find(x => x.id === item.id);
+    t.date = date;
+    if (!t.fromRepeat) delete t.origDate;     // 직접 옮긴 일정은 이월 표시 해제
+  } else {
+    const r = state.repeats.find(x => x.id === item.id);
+    r.skip = r.skip || [];
+    if (!r.skip.includes(view)) r.skip.push(view);
+    state.tasks.push({ id:uid(), text:r.text, important:r.important, date, done:false, doneAt:null, note:r.note || '' });
+  }
+  save(); rollover(); render(); if (calOpen()) renderCal();
+  toast(`${fmtDate(date)}로 옮겼어요` + (item.kind === 'repeat' ? ' (이 날 회차만)' : ''));
+}
 function toggleDone(item){
   if (item.kind === 'task'){
     const t = state.tasks.find(x => x.id === item.id);
@@ -531,7 +585,15 @@ function makeLi(item){
   del.className = 'icon del'; del.textContent = '✕'; del.title = '삭제';
   del.onclick = () => remove(item);
 
-  li.append(cb, txt, nb, star, del);
+  const mv = document.createElement('label');
+  mv.className = 'icon move'; mv.title = item.kind === 'repeat' ? '이 날 회차만 다른 날로 옮기기' : '날짜 변경';
+  mv.innerHTML = '<span>📅</span>';
+  const di = document.createElement('input'); di.type = 'date'; di.value = view;
+  di.addEventListener('click', () => { try{ di.showPicker(); }catch(_){} });
+  di.addEventListener('change', () => moveItem(item, di.value));
+  mv.appendChild(di);
+
+  li.append(cb, txt, nb, mv, star, del);
 
   if (isOpen){
     const box = document.createElement('div'); box.className = 'note-box';
@@ -570,6 +632,7 @@ function render(){
   b.onclick = () => toggleWorkday(view);
   info.append(s, b);
 
+  updateAddDate();
   const items = itemsFor(view);
   const todo = items.filter(i => !i.done)
     .sort((a,b) => (b.important - a.important) || (a.order - b.order));
@@ -703,7 +766,8 @@ function merge(remote, local){
   const repeats = byId(remote.repeats, local.repeats).map(r => {
     const o = remote.repeats.find(x => x.id === r.id);
     if (!o || o === r) return r;
-    return { ...r, done:[...new Set([...(o.done||[]), ...(r.done||[])])], carried:[...new Set([...(o.carried||[]), ...(r.carried||[])])] };
+    return { ...r, done:[...new Set([...(o.done||[]), ...(r.done||[])])], carried:[...new Set([...(o.carried||[]), ...(r.carried||[])])],
+             skip:[...new Set([...(o.skip||[]), ...(r.skip||[])])] };
   });
   return { tasks:byId(remote.tasks, local.tasks), repeats,
            dayOverrides:{ ...(remote.dayOverrides||{}), ...(local.dayOverrides||{}) }, updatedAt:Date.now() };
