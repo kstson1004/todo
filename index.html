@@ -122,6 +122,11 @@ li input[type=checkbox]{width:19px;height:19px;accent-color:var(--accent);cursor
 .done .note-box textarea{color:var(--done)}
 .date,.date small,.nav button{white-space:nowrap}
 .icon.note .ico{display:none}
+.drag{cursor:grab;color:var(--muted);opacity:.45;font-size:16px;line-height:1;padding:6px 2px;margin-left:-4px;
+  touch-action:none;user-select:none;-webkit-user-select:none}
+.drag:hover{opacity:1}
+li.dragging{position:relative;z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:.97;cursor:grabbing}
+body.is-dragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .icon.move{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .icon.move span{font-size:14px;filter:grayscale(1);opacity:.7;pointer-events:none}
 .icon.move:hover span{filter:none;opacity:1}
@@ -511,11 +516,11 @@ function itemsFor(date){
   const list = [];
   state.tasks.filter(t => t.date === date).forEach(t => list.push({
     kind:'task', id:t.id, text:t.text, important:t.important, done:t.done,
-    doneAt:t.doneAt || 0, origDate:t.origDate, rep:null, order:0, note:t.note || ''
+    doneAt:t.doneAt || 0, origDate:t.origDate, rep:null, order:0, note:t.note || '', rank:t.rank
   }));
   state.repeats.filter(r => occursOn(r, date)).forEach(r => list.push({
     kind:'repeat', id:r.id, text:r.text, important:r.important, done:r.done.includes(date),
-    doneAt:0, rep:repeatLabel(r), order:1, note:r.note || ''
+    doneAt:0, rep:repeatLabel(r), order:1, note:r.note || '', rank:r.rank
   }));
   return list;
 }
@@ -535,8 +540,61 @@ function setNote(item, text){
   save();          // 화면은 다시 그리지 않음 (입력 중 커서 유지)
 }
 
-function makeLi(item){
+/* ---------- 순서 바꾸기 (중요끼리, 기본끼리) ---------- */
+const rankOf = i => (typeof i.rank === 'number') ? i.rank : 1e15;   // 순서를 정한 적 없으면 맨 뒤
+const findObj = key => { const [k, id] = key.split(':');
+  return k === 'task' ? state.tasks.find(x => x.id === id) : state.repeats.find(x => x.id === id); };
+
+function startDrag(e, li){
+  if (e.button !== undefined && e.button !== 0) return;
+  e.preventDefault();
+  const list = $('todoList');
+  const sel = `li[data-group="${li.dataset.group}"]`;
+  if (list.querySelectorAll(sel).length < 2) return;
+  const grab = e.clientY - li.getBoundingClientRect().top;     // 행 안에서 잡은 위치
+  li.classList.add('dragging');
+  document.body.classList.add('is-dragging');
+
+  const place = y => {
+    li.style.transform = '';
+    const others = [...list.querySelectorAll(sel)].filter(x => x !== li);
+    const before = others.find(o => { const r = o.getBoundingClientRect(); return y < r.top + r.height / 2; });
+    if (before) { if (li.nextElementSibling !== before) list.insertBefore(li, before); }
+    else { const last = others[others.length - 1]; if (last.nextElementSibling !== li) last.after(li); }
+    const top = li.getBoundingClientRect().top;
+    li.style.transform = `translateY(${y - grab - top}px)`;
+  };
+  const onMove = ev => {
+    if (ev.clientY < 70) window.scrollBy(0, -12);
+    else if (ev.clientY > window.innerHeight - 70) window.scrollBy(0, 12);
+    place(ev.clientY);
+  };
+  const onUp = () => {
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', onUp);
+    window.removeEventListener('pointercancel', onUp);
+    li.style.transform = '';
+    li.classList.remove('dragging');
+    document.body.classList.remove('is-dragging');
+    // 이 그룹의 새 순서를 저장
+    [...list.querySelectorAll(sel)].forEach((x, i) => { const o = findObj(x.dataset.key); if (o) o.rank = i; });
+    save(); render();
+  };
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
+}
+
+function makeLi(item, sortable){
   const li = document.createElement('li');
+  li.dataset.key = item.kind + ':' + item.id;
+  li.dataset.group = item.important ? 'imp' : 'norm';
+  if (sortable){
+    const h = document.createElement('span');
+    h.className = 'drag'; h.textContent = '⠿'; h.title = '끌어서 순서 바꾸기';
+    h.addEventListener('pointerdown', e => startDrag(e, li));
+    li.appendChild(h);
+  }
   if (item.important && !item.done) li.classList.add('important');
 
   const cb = document.createElement('input');
@@ -635,7 +693,7 @@ function render(){
   updateAddDate();
   const items = itemsFor(view);
   const todo = items.filter(i => !i.done)
-    .sort((a,b) => (b.important - a.important) || (a.order - b.order));
+    .sort((a,b) => (b.important - a.important) || (rankOf(a) - rankOf(b)) || (a.order - b.order));
   const done = items.filter(i => i.done)
     .sort((a,b) => b.doneAt - a.doneAt);
 
@@ -644,7 +702,7 @@ function render(){
     const e = document.createElement('div'); e.className = 'empty';
     e.textContent = items.length ? '모두 끝냈어요 🎉' : '등록된 할일이 없어요';
     tl.appendChild(e);
-  } else todo.forEach(i => tl.appendChild(makeLi(i)));
+  } else todo.forEach(i => tl.appendChild(makeLi(i, true)));
 
   $('doneTitle').textContent = `${showDone ? '▾' : '▸'} 완료 ${done.length}`;
   $('doneTitle').parentElement.classList.toggle('hidden', done.length === 0);
