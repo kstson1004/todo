@@ -180,7 +180,7 @@ body.is-dragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
   padding:3px 10px;text-decoration:none;font-weight:600}
 /* 설정 창 */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
-.modal-box{background:var(--card);color:var(--text);border-radius:14px;padding:20px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.modal-box{max-height:calc(100vh - 32px);overflow:auto;background:var(--card);color:var(--text);border-radius:14px;padding:20px;width:100%;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
 .modal-box h3{margin:0 0 6px;font-size:17px}
 .modal-desc{margin:0 0 14px;font-size:13px;color:var(--muted)}
 .modal-box label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:10px}
@@ -191,6 +191,12 @@ body.is-dragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .modal-btns{display:flex;gap:8px;align-items:center}
 .modal-btns .btn{background:var(--bg);color:var(--text)}
 .modal-btns .btn.primary{background:var(--accent);color:#fff}
+.fixsync{border-top:1px solid var(--line);margin:4px 0 14px;padding-top:12px}
+.fixsync-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.fixsync p{margin:0 0 8px;font-size:12px;color:var(--muted)}
+.fixsync .btn{display:block;width:100%;margin-bottom:6px;text-align:left;background:var(--bg);color:var(--text);
+  border:1px solid var(--line);font-weight:600;font-size:13px}
+.fixsync .btn:hover{border-color:var(--accent)}
 .link-danger{border:none;background:transparent;color:var(--danger);font-size:12px;cursor:pointer;text-decoration:underline;padding:0}
 .modal.hidden{display:none}
 .hint{text-align:center;color:var(--muted);font-size:12px;margin-top:36px}
@@ -238,7 +244,7 @@ body.is-dragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
     <ul id="doneList" class="done"></ul>
   </div>
 
-  <div class="hint">항목을 더블클릭하면 수정 · 미완료 항목은 다음날로 자동 이월 · 매일 반복은 주말·공휴일 제외</div>
+  <div class="hint">버전 2026-11-06b · 항목을 더블클릭하면 수정 · 미완료 항목은 다음날로 자동 이월 · 매일 반복은 주말·공휴일 제외</div>
 </div>
 
 <div class="modal hidden" id="settings">
@@ -249,6 +255,12 @@ body.is-dragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
     <label>데이터 저장소 이름<input id="sRepo" placeholder="todo-data" autocomplete="off"></label>
     <label>토큰 (Fine-grained token)<input id="sToken" type="password" placeholder="github_pat_..." autocomplete="off"></label>
     <div class="modal-msg" id="sMsg"></div>
+    <div class="fixsync hidden" id="fixSync">
+      <div class="fixsync-title">기기끼리 내용이 다를 때</div>
+      <p>맞는 쪽 기기에서 <b>덮어쓰기</b>를 누르고, 다른 기기에서 <b>맞추기</b>를 누르세요.</p>
+      <button class="btn" id="forcePush">⬆ 이 기기 내용으로 GitHub 덮어쓰기</button>
+      <button class="btn" id="forcePull">⬇ GitHub 내용으로 이 기기 맞추기</button>
+    </div>
     <div class="modal-btns">
       <button class="link-danger hidden" id="sDisconnect">연결 해제</button>
       <span style="flex:1"></span>
@@ -281,12 +293,32 @@ function load(){
   }catch(e){}
   return { tasks:[], repeats:[] };
 }
+/* 항목별 수정 시각 기록: 동기화 때 '더 최근에 고친 쪽'을 항목 단위로 고르기 위함 */
+let snap = new Map();
+const sig = o => { const { u, ...rest } = o; return JSON.stringify(rest); };
+function takeSnap(){
+  snap = new Map();
+  state.tasks.forEach(t => snap.set('t:' + t.id, sig(t)));
+  state.repeats.forEach(r => snap.set('r:' + r.id, sig(r)));
+}
+function stamp(){
+  const now = Date.now(), seen = new Set();
+  [[state.tasks, 't:'], [state.repeats, 'r:']].forEach(([arr, pre]) => arr.forEach(o => {
+    const k = pre + o.id; seen.add(k);
+    if (snap.get(k) !== sig(o)) o.u = now;
+  }));
+  state.deleted = state.deleted || {};
+  snap.forEach((v, k) => { if (!seen.has(k)) state.deleted[k.slice(2)] = now; });   // 지운 항목
+  takeSnap();
+}
 function save(){
+  stamp();
   state.updatedAt = Date.now();
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
   scheduleWrite();
 }
 let state = load();
+takeSnap();
 let today = todayStr();
 let view = today;
 let showDone = true;
@@ -323,6 +355,7 @@ function toggleWorkday(date){
   const now = isWorkday(date);
   if (now === !def) delete state.dayOverrides[date];      // 기본값으로 되돌림
   else state.dayOverrides[date] = now ? 'off' : 'work';
+  state.ovU = Date.now();
   save(); render();
 }
 
@@ -361,7 +394,8 @@ function rollover(){
       if (d < r.start || !occursOn(r, d)) continue;
       if (r.done.includes(d) || r.carried.includes(d)) continue;
       r.carried.push(d);
-      state.tasks.push({ id:uid(), text:r.text, important:r.important, date:today, done:false,
+      if (state.tasks.some(t => t.id === `c_${r.id}_${d}`)) continue;
+      state.tasks.push({ id:`c_${r.id}_${d}`, text:r.text, important:r.important, date:today, done:false,
                          doneAt:null, origDate:d, fromRepeat:r.id, note:r.note || '' });
       changed = true;
     }
@@ -798,7 +832,8 @@ const b64enc = s => { const b = new TextEncoder().encode(s); let bin = ''; for (
 const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, '')), c => c.charCodeAt(0)));
 
 async function api(method, body){
-  const url = `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}/contents/${DATA_PATH}`;
+  const url = `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}/contents/${DATA_PATH}`
+    + (method === 'GET' ? `?t=${Date.now()}` : '');
   const r = await fetch(url, {
     method, cache:'no-store',
     headers:{ 'Accept':'application/vnd.github+json', 'Authorization':'Bearer ' + gh.token,
@@ -818,17 +853,23 @@ async function fetchRemote(){
   return { sha:j.sha, data };
 }
 
-// 두 기기에서 동시에 고친 경우: 같은 항목은 이 기기 것을 우선, 한쪽에만 있는 항목은 모두 살림
+// 두 기기에서 동시에 고친 경우: 항목마다 '더 최근에 고친 쪽'을 고르고, 지운 항목은 되살리지 않음
 function merge(remote, local){
-  const byId = (a, b) => { const m = new Map(a.map(x => [x.id, x])); b.forEach(x => m.set(x.id, x)); return [...m.values()]; };
-  const repeats = byId(remote.repeats, local.repeats).map(r => {
-    const o = remote.repeats.find(x => x.id === r.id);
-    if (!o || o === r) return r;
-    return { ...r, done:[...new Set([...(o.done||[]), ...(r.done||[])])], carried:[...new Set([...(o.carried||[]), ...(r.carried||[])])],
-             skip:[...new Set([...(o.skip||[]), ...(r.skip||[])])] };
-  });
-  return { tasks:byId(remote.tasks, local.tasks), repeats,
-           dayOverrides:{ ...(remote.dayOverrides||{}), ...(local.dayOverrides||{}) }, updatedAt:Date.now() };
+  const del = { ...(remote.deleted || {}) };
+  Object.entries(local.deleted || {}).forEach(([k, v]) => { if (!del[k] || v > del[k]) del[k] = v; });
+  const reset = Math.max(remote.resetAt || 0, local.resetAt || 0);
+  const cutoff = Date.now() - 60 * 864e5;                       // 60일 지난 삭제 기록은 정리
+  Object.keys(del).forEach(k => { if (del[k] < cutoff) delete del[k]; });
+  const pick = (a, b) => {
+    const m = new Map();
+    [...(a || []), ...(b || [])].forEach(x => { const o = m.get(x.id); if (!o || (x.u || 0) > (o.u || 0)) m.set(x.id, x); });
+    // '덮어쓰기' 이후로 고친 적 없는 옛 항목은 버림
+    return [...m.values()].filter(x => !(del[x.id] >= (x.u || 0)) && (x.u || 0) >= reset);
+  };
+  const lo = (local.ovU || 0) > (remote.ovU || 0);
+  return { tasks:pick(remote.tasks, local.tasks), repeats:pick(remote.repeats, local.repeats),
+           dayOverrides: lo ? (local.dayOverrides || {}) : (remote.dayOverrides || {}),
+           ovU: Math.max(local.ovU || 0, remote.ovU || 0), deleted:del, resetAt:reset, updatedAt:Date.now() };
 }
 
 // 불러오기: 다른 기기에서 바뀐 게 있으면 반영
@@ -839,6 +880,7 @@ async function pull(){
     const { sha, data } = await fetchRemote();
     if (sha && sha !== meta.sha){
       state = meta.dirty ? merge(data, state) : data;
+      takeSnap();
       meta.sha = sha; saveLocal(); saveMeta();
     }
     busy = false;
@@ -867,7 +909,7 @@ async function push(retry = true){
     if ((r.status === 409 || r.status === 422) && retry){
       // 그 사이 다른 기기가 저장함 → 받아서 합친 뒤 다시 올림
       const { sha, data } = await fetchRemote();
-      if (data){ state = merge(data, state); saveLocal(); render(); }
+      if (data){ state = merge(data, state); takeSnap(); saveLocal(); render(); }
       meta.sha = sha; busy = false;
       return push(false);
     }
@@ -896,7 +938,7 @@ function setStatus(kind, msg){
   } else if (kind === 'synced'){
     const t = new Date(meta.last);
     span.textContent = `☁ GitHub에 저장됨 · ${pad(t.getHours())}:${pad(t.getMinutes())}`;
-    btn('설정', openSettings, 'link');
+    btn('↻ 지금 동기화', pull, 'link'); btn('설정', openSettings, 'link');
   } else if (kind === 'offline'){
     bar.classList.add('alert');
     span.textContent = `⚠ GitHub 연결 안 됨 (${msg || ''}) — 이 기기에 저장해 두고, 연결되면 자동으로 올려요`;
@@ -915,6 +957,7 @@ function openSettings(){
   $('sToken').value = gh?.token || '';
   $('sMsg').textContent = '';
   $('sDisconnect').classList.toggle('hidden', !gh);
+  $('fixSync').classList.toggle('hidden', !gh);
   $('settings').classList.remove('hidden');
 }
 function closeSettings(){ $('settings').classList.add('hidden'); }
@@ -932,6 +975,7 @@ $('sSave').onclick = async () => {
     if (data){
       // 저장소에 이미 할일이 있으면 합치기
       state = (state.tasks.length || state.repeats.length) ? merge(data, state) : data;
+      takeSnap();
       meta.dirty = true;
     } else meta.dirty = true;
     meta.sha = sha; saveLocal(); saveMeta();
@@ -942,6 +986,46 @@ $('sSave').onclick = async () => {
       : `연결 실패: ${e.message} (사용자 이름·저장소 이름을 확인해 주세요)`;
   }
 };
+/* ---------- 강제로 맞추기 ---------- */
+$('forcePull').onclick = async () => {
+  if (!confirm('이 기기의 할일을 GitHub에 저장된 내용으로 바꿀까요?\n(이 기기에만 있던 변경은 사라져요)')) return;
+  $('sMsg').textContent = '가져오는 중…';
+  try{
+    busy = true;
+    const { sha, data } = await fetchRemote();
+    busy = false;
+    if (!data){ $('sMsg').textContent = 'GitHub에 아직 저장된 할일이 없어요.'; return; }
+    clearTimeout(pushTimer);
+    state = data; takeSnap();
+    meta.sha = sha; meta.dirty = false; saveLocal(); saveMeta();
+    closeSettings(); rollover(); render(); done();
+    toast('GitHub 내용으로 맞췄어요');
+  }catch(e){ busy = false; $('sMsg').textContent = '실패: ' + e.message; }
+};
+$('forcePush').onclick = async () => {
+  if (!confirm('지금 이 기기에 보이는 할일로 GitHub를 덮어쓸까요?\n(다른 기기에서만 바꾼 내용은 사라져요)')) return;
+  $('sMsg').textContent = '올리는 중…';
+  try{
+    busy = true;
+    const { sha, data } = await fetchRemote();
+    busy = false;
+    const now = Date.now();
+    // 이 기기 항목을 모두 '최신'으로 표시하고, 여기 없는 항목은 삭제 기록 → 다른 기기에서 되살아나지 않음
+    state.tasks.forEach(t => t.u = now);
+    state.repeats.forEach(r => r.u = now);
+    state.ovU = now;
+    state.resetAt = now;
+    state.deleted = state.deleted || {};
+    const mine = new Set([...state.tasks, ...state.repeats].map(x => x.id));
+    if (data) [...data.tasks, ...data.repeats].forEach(x => { if (!mine.has(x.id)) state.deleted[x.id] = now; });
+    takeSnap();
+    meta.sha = sha; meta.dirty = true; saveLocal(); saveMeta();
+    closeSettings(); render();
+    await push(false);
+    toast('이 기기 내용으로 GitHub를 덮어썼어요');
+  }catch(e){ busy = false; $('sMsg').textContent = '실패: ' + e.message; }
+};
+
 $('sDisconnect').onclick = () => {
   if (!confirm('이 기기에서 GitHub 연결을 해제할까요? (GitHub의 데이터는 그대로 남아요)')) return;
   gh = null; meta = { sha:null, dirty:false, last:0 };
@@ -954,17 +1038,23 @@ function checkDay(){
   const t = todayStr();
   if (t !== today){
     const wasToday = view === today;
-    rollover();
+    today = t;
     if (wasToday) view = today;
-    render();
+    if (gh) pull();                 // 다른 기기 변경을 먼저 받고 이월
+    else { rollover(); render(); }
   }
 }
 setInterval(checkDay, 60000);
-setInterval(() => { if (!document.hidden) pull(); }, 3 * 60000);   // 3분마다 다른 기기 변경 확인
-document.addEventListener('visibilitychange', () => { if (!document.hidden){ checkDay(); pull(); } });
+setInterval(() => { if (!document.hidden) pull(); }, 60000);   // 1분마다 다른 기기 변경 확인
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden){
+    // 앱을 내리거나 닫기 직전: 기다리던 저장을 바로 올림 (폰에서 저장이 늦게 올라가 덮어써지던 문제)
+    if (gh && meta.dirty){ clearTimeout(pushTimer); push(); }
+  } else { checkDay(); pull(); }
+});
 
 if ('serviceWorker' in navigator && location.protocol === 'https:'){
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register('sw.js', { updateViaCache:'none' }).then(r => r.update()).catch(() => {});
 }
 
 renderDayChips();
